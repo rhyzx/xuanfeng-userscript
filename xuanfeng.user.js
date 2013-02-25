@@ -163,7 +163,84 @@ window.ptuiCB = function () {
  */
 injectScript(function () {
 // ======
-// TODO
+var $   = window.jQuery
+  , msg = window.XF.widget.msgbox
+
+
+// orignal code by binux
+// https://gist.github.com/binux/4585941
+var isMagnet = /^magnet:\?/i
+// set cookie for requesting xunlei's magnet api
+$.getScript('http://pyproxy.duapp.com/http://httpbin.duapp.com/cookies/set?userid=21')
+.then(function () {
+    $('#input_tips').text('请输入HTTP/eD2k/magnet链接')
+
+    // rewrite
+    var _info = EventHandler.set_hide_info
+    EventHandler.set_hide_info = function () {
+        var url = $('#dl_url_id').val()//.replace(/,/g, '_')
+
+        if (url.match(isMagnet))
+            addMagnetTask(url)
+        else
+            _info.apply(EventHandler, arguments)
+    }
+})
+
+
+function addMagnetTask(url) {
+    window.g_pop_task.hide()
+    msg.show('解析magnet链接中...', 0, 20000, true)
+
+    $.ajax({
+      // callback name is hard coded
+        url     : 'http://pyproxy.duapp.com/http://dynamic.cloud.vip.xunlei.com/interface/url_query?callback=queryUrl'
+      , data    : { u : url }
+      , cache   : true
+      , dataType: 'script'
+    })
+}
+
+// mock bt upload function
+// extract show bt files select function
+var showFileList
+!(function () {
+    var tmp = window.AjaxUpload
+    window.AjaxUpload = function ($e, options) {
+        showFileList = options.onComplete
+    }
+    window.initTorrent() // call
+    window.AjaxUpload = tmp // revert
+})()
+
+// callback
+window.queryUrl = function (
+        flag, infohash, fsize,
+        bt_title, is_full, subtitle, subformatsize,
+        size_list, valid_list, file_icon, findex, random
+) {
+    msg.hide()
+
+    if (flag !== 1) return showFileList()
+
+    var files = []
+    for (var i = 0, len=subtitle.length; i<len; i++) {
+        files.push({
+            file_index  : findex[i]
+          , file_name   : subtitle[i]
+          , file_size   : subformatsize[i]
+          , file_size_ori : parseInt(size_list[i], 10)
+        })
+    }
+
+    showFileList(null, JSON.stringify({
+        ret : 0
+      , name: bt_title
+      , hash: infohash.toLowerCase()
+      , files : files
+    }))
+}
+
 /// =====
 })
 
