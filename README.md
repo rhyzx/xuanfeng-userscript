@@ -3,10 +3,6 @@ XuanFengEx
 
 QQ旋风Web版增强脚本
 
-Screenshots
------------
-
-
 Features
 --------
 
@@ -16,3 +12,9 @@ Features
 - TODO 自动登录
 - magnet链接支持
 - TODO bt任务文件夹折叠
+
+
+Screenshots
+-----------
+
+

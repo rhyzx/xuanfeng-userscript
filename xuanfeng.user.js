@@ -113,8 +113,8 @@ injectScript(function () {
 // ======
 
 var $       = window.jQuery
-  , cookie  = window.QZFL.cookie
   , msg     = window.XF.widget.msgbox
+  , cookie  = window.QZFL.cookie
 
 // user logout
 $(document).delegate('.log_out_link', 'click', function () {
@@ -131,9 +131,33 @@ QQXF.COMMON.backToLogin = function () {
     msg.hide()
     g_pop_login.show()
 }
+
+function checkVC() {
+
+    if (img) {
+        g_pop_login.showVC()
+    } else {
+        g_pop_login.setVC(vcode)
+    }
+
+    return vcode
+}
+/*
+g_pop_login.$uin.change(function () {
+    if (this.value.length > 4) {
+        checkVC()
+    }
+})
+g_pop_login.$form.submit(function () {
+    
+    if (autoLogin) {
+        // save uin/passhex
+    }
+})
 /*
 //TODO custom login
 $.get('http://check.ptlogin2.qq.com/check?uin=')
+ptui_checkVC('0','!JTF','\x00\x00\x00\x00\x20\x56\x38\xb0');
 var px = md5(
     md5(
         hexchar2bin(md5(pass)) + uin
@@ -141,15 +165,18 @@ var px = md5(
     vc.toUpperCase()
 )
 
-$.getScript(['http://ptlogin2.qq.com/login'
-  , '?u='
-  , '&p='
-  , '&verifycode='
+function login(uin, passhex, vcode, vc) {
+    $.getScript(['http://ptlogin2.qq.com/login'
+      , '?u=' +uin
+      , '&p=' +md5( md5(passhex+uin) +vc.toUpperCase() )
+      , '&verifycode=' +vcode
 
-    // useles but necessary for request
-  , '&u1=http%3A%2F%2Fqq.com&aid=1&h=1&from_ui=1&g=1'
-].join(''))
+        // useles but necessary for request
+      , '&u1=http%3A%2F%2Fqq.com&aid=1&h=1&from_ui=1&g=1'
+    ].join(''))
+}
 
+// login callback
 //ptuiCB('4','3','','0','登录失败，请重试。*', '100000');
 window.ptuiCB = function () {
 }
@@ -177,8 +204,9 @@ $.getScript('http://pyproxy.duapp.com/http://httpbin.duapp.com/cookies/set?useri
 
     // rewrite
     var _info = EventHandler.set_hide_info
+      , input = $('#dl_url_id').get(0)
     EventHandler.set_hide_info = function () {
-        var url = $('#dl_url_id').val()//.replace(/,/g, '_')
+        var url = input.value//.replace(/,/g, '_')
 
         if (url.match(isMagnet))
             addMagnetTask(url)
@@ -251,7 +279,8 @@ window.queryUrl = function (
 injectScript(function () {
 // ======
 
-QQVIP.template._show = QQVIP.template.show
+// rewrite
+var _show = QQVIP.template.show
 QQVIP.template.show = function (options) {
     //console.log(options.element)
     var taskList = options.JSON
@@ -263,7 +292,7 @@ QQVIP.template.show = function (options) {
         // TODO fold?
         //task_org_url: "DB7B0F2264494DAFCD20CACB410399CC65230819_0"
     }
-    QQVIP.template._show(options)
+    _show.call(QQVIP.template, options)
 }
 
 /// =====
@@ -320,7 +349,7 @@ pop.setDownloads = function (dls) {
     for (var i=0, dl; dl=dls[i++];) {
         file += [
             dl.url
-          , '  header=Cookie: FTN6K=' +dl.cookie
+          , '  header=Cookie: FTN5K=' +dl.cookie
           , '  out=' +dl.filename
           , '  continue=true'
           , '\n'
@@ -362,6 +391,12 @@ var $login = $((function () {/*
     <div class="com_win_cont_wrap">
         <div class="com_win_cont">
         <iframe id="login_frame_new" name="login_frame_new" height="192" frameborder="0" scrolling="no" src="http://ui.ptlogin2.qq.com/cgi-bin/login?uin=&appid=567008010&f_url=loginerroralert&hide_title_bar=1&style=1&s_url=http%3A//lixian.qq.com/main.html&lang=0&enable_qlogin=1&css=http%3A//imgcache.qq.com/ptcss/r1/txyjy/567008010/login_mode_new.css%3F" allowtransparency="true"></iframe>
+        <!--
+        <form action="">
+
+            <input type="checkbox" value="自动登录" />
+        </form>
+        -->
         </div>
     </div>
     <div class="com_win_foot_wrap"><div class="com_win_foot"></div></div>
@@ -369,7 +404,19 @@ var $login = $((function () {/*
 */}).toString().slice(16, -4)).appendTo('#popup_area')
 
 var pop = window.g_pop_login = new xfDialog('login_win')
+/*
+pop.disable
+pop.enable
+pop.$f
+$.getScript(['http://ptlogin2.qq.com/login'
+  , '?u='
+  , '&p='
+  , '&verifycode='
 
+    // useles but necessary for request
+  , '&u1=http%3A%2F%2Fqq.com&aid=1&h=1&from_ui=1&g=1'
+].join(''))
+*/
 /// =====
 })
 
