@@ -112,63 +112,88 @@ injectScript('http://imgcache.qq.com/ptlogin/ver/10021/js/comm.js', true)
 injectScript(function () {
 // ======
 
+// execute after qq lib loaded
+window.g_href = '' // prevent lib abort
+var callbacks = []
+function onScriptLoad(callback) {
+    if (typeof callback === 'function')
+        callbacks.push(callback)
+}
+
+var pt = {
+    // login lib will call this
+    init: function () {
+        callbacks.forEach(function (callback) {
+            callback()
+        })
+    }
+}
+window.__defineGetter__('pt', function () {
+    return pt // prevent rewrite
+})
+
+
+
 var $       = window.jQuery
   , msg     = window.XF.widget.msgbox
   , cookie  = window.QZFL.cookie
 
-// user logout
-$(document).delegate('.log_out_link', 'click', function () {
-    cookie.del('uin', 'qq.com')
-    cookie.del('skey', 'qq.com')
-    //window.location.reload()
-})
 
 // rewrite
-QQXF.COMMON.backToLogin = function () {
-    // if can autologin
-    // g_pop_login.login()
-    // else
+QQXF.COMMON.backToLogin = function (time) {
     msg.hide()
-    g_pop_login.show()
-}
+    if (time === 13) return logout() // user click logout
 
-function checkVC() {
+    var uin = localStorage.getItem('uin')
+      , passhex = localStorage.getItem('passhex')
 
-    if (img) {
-        g_pop_login.showVC()
+    // autologin
+    if (uin && passhex) {
+        msg.show('自动登录中...', 0, 5000, true)
+        checkVC(uin, function (code, vcode, vc) {
+            if (code == '0') { // no captcha
+                login(uin, passhex, vcode, vc)
+            } else { // captcha
+                g_pop_login.showVC(function (vcode) {
+                    login(uin, passhex, vcode, vc)
+                }, uin)
+            }
+        })
     } else {
-        g_pop_login.setVC(vcode)
-    }
+        // self login
+        g_pop_login.showLogin(function (uin, pass, vcode, vc, save) {
+            var passhex = hexchar2bin( md5(pass) )
+        
+            localStorage.setItem('uin', uin)
+            if (save) { // save pass
+                localStorage.setItem('passhex', passhex)
+            }
 
-    return vcode
+            login(uin, passhex, vcode, vc)
+        }, uin)
+    }
 }
-/*
-g_pop_login.$uin.change(function () {
-    if (this.value.length > 4) {
-        checkVC()
-    }
-})
-g_pop_login.$form.submit(function () {
-    
-    if (autoLogin) {
-        // save uin/passhex
-    }
-})
-/*
-//TODO custom login
-$.get('http://check.ptlogin2.qq.com/check?uin=')
-ptui_checkVC('0','!JTF','\x00\x00\x00\x00\x20\x56\x38\xb0');
-var px = md5(
-    md5(
-        hexchar2bin(md5(pass)) + uin
-    ) +
-    vc.toUpperCase()
-)
 
-function login(uin, passhex, vcode, vc) {
+// vc
+var vcallback
+function checkVC(uin, callback) {
+    vcallback = callback
+    $.getScript('http://check.ptlogin2.qq.com/check?uin=' +uin)
+}
+window.checkVC = checkVC // export
+// check vc callback
+//ptui_checkVC('0','!JTF','\x00\x00\x00\x00\x20\x56\x38\xb0');
+onScriptLoad(function () {
+    window.ptui_checkVC = function (code, vcode, vc) {
+        vcallback.apply(null, arguments)
+    }
+})
+
+// login main
+function login (uin, passhex, vcode, vc) {
     $.getScript(['http://ptlogin2.qq.com/login'
       , '?u=' +uin
-      , '&p=' +md5( md5(passhex+uin) +vc.toUpperCase() )
+      , '&p=' +md5( md5(passhex+vc) +vcode.toUpperCase() )
       , '&verifycode=' +vcode
 
         // useles but necessary for request
@@ -177,10 +202,33 @@ function login(uin, passhex, vcode, vc) {
 }
 
 // login callback
+// code? ? url ? info usr
 //ptuiCB('4','3','','0','登录失败，请重试。*', '100000');
-window.ptuiCB = function () {
+onScriptLoad(function () {
+    window.ptuiCB = function (code, x, url, x2, tip, usr) {
+        if (code == '0') {
+            msg.show(tip, 1, 5000)
+        } else {
+            msg.show(tip, 2, 5000)
+            localStorage.removeItem('passhex')
+        }
+
+        setTimeout(function () {
+            window.location.reload()
+        }, 800)
+    }
+})
+
+
+// logout main
+function logout() {
+    cookie.del('uin', 'qq.com')
+    cookie.del('skey', 'qq.com')
+    localStorage.removeItem('uin')
+    localStorage.removeItem('passhex')
+    msg.show('已退出', 3, 2000)
+    window.location.reload()
 }
-*/
 /// =====
 })
 
@@ -282,9 +330,7 @@ injectScript(function () {
 // rewrite
 var _show = QQVIP.template.show
 QQVIP.template.show = function (options) {
-    //console.log(options.element)
     var taskList = options.JSON
-    console.log(taskList)
     for (var i=0, task; task=taskList[i++];) {
         // show full name
         task.task_short_file_name = task.task_file_name
@@ -305,8 +351,8 @@ QQVIP.template.show = function (options) {
 injectScript(function () {
 // ======
 
-var $ = window.jQuery
-  , xfDialog = window.xfDialog
+var $       = window.jQuery
+  , xfDialog= window.xfDialog
 
 var $export = $((function () {/*
 <div id="ex_pop_export_dl" class="com_win">
@@ -380,23 +426,39 @@ pop.setDownloads = function (dls) {
 injectScript(function () {
 // ======
 
-var $ = window.jQuery
-  , xfDialog = window.xfDialog
+var $       = window.jQuery
+  , xfDialog= window.xfDialog
+  , msg     = window.XF.widget.msgbox
 
 var $login = $((function () {/*
 <div id="login_win" class="com_win">
-    <div class="com_win_head_wrap">
-        <h1><em> 登录</em> <span class="close_win" title="关闭"><a href="###"></a></span></h1>
-    </div>
+    <div class="com_win_head_wrap"> <h1><em>登录</em> <span class="close_win" title="关闭"><a href="###"></a></span></h1></div>
     <div class="com_win_cont_wrap">
         <div class="com_win_cont">
-        <iframe id="login_frame_new" name="login_frame_new" height="192" frameborder="0" scrolling="no" src="http://ui.ptlogin2.qq.com/cgi-bin/login?uin=&appid=567008010&f_url=loginerroralert&hide_title_bar=1&style=1&s_url=http%3A//lixian.qq.com/main.html&lang=0&enable_qlogin=1&css=http%3A//imgcache.qq.com/ptcss/r1/txyjy/567008010/login_mode_new.css%3F" allowtransparency="true"></iframe>
-        <!--
-        <form action="">
-
-            <input type="checkbox" value="自动登录" />
-        </form>
-        -->
+            <div class="pop">
+                <div class="con">
+                <form action="#">
+                    <div class="ex_login_area">
+                        <p class="p1"><label>QQ帐号：</label><input name="uin" type="text"></p>
+                        <p class="p2"><label>QQ密码：</label><input name="pass" type="password"></p>
+                    </div>
+                    <div class="ex_vc_area" style="display:none">
+                        <p class="p2" style="">
+                            <label>验证码：</label>
+                            <input class="ex_vcode" name="vcode" type="text" />
+                            <img class="ex_vimg" width="130" height="53">
+                        </p>
+                    </div>
+                    <p class="discr">
+                        <a href="javascript:;" class="ex_login_btn com_opt_btn"><span><em>登录</em></span></a>
+                        <span class="ex_login_area">
+                            <input class="ex_check_box" name="save" type="checkbox">
+                            <span>自动登录</span>
+                        </span>
+                    </p>
+                </form>
+                </div>
+            </div>
         </div>
     </div>
     <div class="com_win_foot_wrap"><div class="com_win_foot"></div></div>
@@ -404,19 +466,71 @@ var $login = $((function () {/*
 */}).toString().slice(16, -4)).appendTo('#popup_area')
 
 var pop = window.g_pop_login = new xfDialog('login_win')
-/*
-pop.disable
-pop.enable
-pop.$f
-$.getScript(['http://ptlogin2.qq.com/login'
-  , '?u='
-  , '&p='
-  , '&verifycode='
 
-    // useles but necessary for request
-  , '&u1=http%3A%2F%2Fqq.com&aid=1&h=1&from_ui=1&g=1'
-].join(''))
-*/
+var elements    = $login.find('form:first').get(0).elements
+
+var $vcArea     = $login.find('.ex_vc_area')
+  , $loginArea  = $login.find('.ex_login_area')
+
+var $vimg       = $login.find('.ex_vimg').click(function () {
+      // refresh captcha pic
+    this.src = 'http://captcha.qq.com/getimage?uin='
+        +this.getAttribute('data-uin')
+        +'&' +Date.now()
+})
+
+
+var action, vc
+$login.find('.ex_login_btn').click(function () {
+    pop.hide()
+    msg.show('登录中...', 0, 5000, true)
+    action()
+})
+
+// only show vc dialog
+pop.showVC = function (callback, uin) {
+    action = function () {
+        callback(elements.vcode.value)
+    }
+    $loginArea.hide()
+    $vcArea.show()
+    $vimg.attr('data-uin', uin).click()
+    pop.show()
+}
+
+
+// show login dialog
+pop.showLogin = function (callback, uin) {
+    action = function () {
+        callback(elements.uin.value, elements.pass.value, elements.vcode.value, vc, elements.save.checked)
+    }
+    pop.show()
+
+    // set uin and checkVC
+    if (uin) $(elements.uin).val(uin).change()
+}
+
+
+// check vc when qq changed
+$(elements.uin).change(function () {
+    var uin = this.value
+    if (uin.length > 4) {
+        msg.show('检测帐号中...', 0, 5000)
+        checkVC(uin, function (code, vcode, _vc) {
+            msg.hide()
+            vc = _vc
+            
+            if (code == '0') { // no captcha
+                $vcArea.hide()
+                elements.vcode.value = vcode
+            } else { // need captcha
+                $vcArea.show()
+                $vimg.attr('data-uin', uin).click() // show pic
+            }
+        })
+    }
+})
+
 /// =====
 })
 
@@ -473,6 +587,24 @@ injectStyle((function () {/*
     font-family: monospace;
     white-space: nowrap;
     border: none;
+}
+#login_win input {
+    padding: 0 5px;
+    width: 220px;
+    background: #FFF;
+}
+#login_win .ex_vcode {
+    display: inline-block;
+    width: 80px;
+}
+#login_win .ex_check_box {
+    width: 16px;
+}
+.ex_login_btn {
+    float: none;
+}
+.ex_vimg {
+    vertical-align: middle;
 }
 */}).toString().slice(16, -4)) // extract css in function
 
