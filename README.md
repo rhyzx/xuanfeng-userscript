@@ -17,8 +17,8 @@ Features
 Screenshots
 -----------
 
-![Export](https://github.com/rhyzx/xuanfeng-userscript/raw/master/export.png)
-![Magnet](https://github.com/rhyzx/xuanfeng-userscript/raw/master/magnet.png)
-![Login](https://github.com/rhyzx/xuanfeng-userscript/raw/master/login.png)
+![Export](https://raw.github.com/rhyzx/xuanfeng-userscript/master/screenshot/export.png)
+![Magnet](https://raw.github.com/rhyzx/xuanfeng-userscript/master/screenshot/magnet.png)
+![Login](https://raw.github.com/rhyzx/xuanfeng-userscript/master/screenshot/login.png)
 
 
