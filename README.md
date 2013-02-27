@@ -3,6 +3,10 @@ XuanFengEx
 
 QQ旋风Web版增强脚本
 
+
+基于 @maplebeats 的[js_for_xf](https://github.com/maplebeats/js_for_xf)
+
+
 Features
 --------
 
@@ -22,3 +26,8 @@ Screenshots
 ![Login](https://raw.github.com/rhyzx/xuanfeng-userscript/master/screenshot/login.png)
 
 
+
+LICENSE
+-------
+
+MIT
