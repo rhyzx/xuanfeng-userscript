@@ -361,16 +361,14 @@ var $export = $((function () {/*
         <div class="com_win_cont">
         <div class="pop">
             <p class="ex_file">
-                <a class="icon_file" href="#" target="_blank"
+                <a class="icon_file ex_file_aria" href="javascript:;" target="_blank"
                     title="$ aria2c -i aria2.down.txt"
                     download="aria2.down.txt"
                 >存为aria2文件</a>
-                <!--
-                <a class="icon_file" href="#" target="_blank"
+                <a class="icon_file ex_file_idm" href="javascript:;" target="_blank"
                     title="IDM"
-                    download="aria2.down.txt"
+                    download="idm.ef2"
                 >存为IDM文件</a>
-                -->
             </p>
             <div class="ex_code">
                 <textarea disabled></textarea>
@@ -383,14 +381,16 @@ var $export = $((function () {/*
 */}).toString().slice(16, -4)).appendTo('#popup_area')
 
 
-var $file = $export.find('.ex_file a:first')
+var $file = $export.find('.ex_file_aria')
   , $code = $export.find('.ex_code textarea:first')
+
+  , $idm  = $export.find('.ex_file_idm')
 
 // setup dialog function
 var pop = window.g_pop_export = new xfDialog('ex_pop_export_dl')
 
 pop.setDownloads = function (dls) {
-    var file = '', code = ''
+    var file = '', code = '', idm = ''
 
     for (var i=0, dl; dl=dls[i++];) {
         file += [
@@ -410,10 +410,20 @@ pop.setDownloads = function (dls) {
           , dl.url
           , '\n'
         ].join('\'')
+
+        idm += [
+            '<'
+          , dl.url //+dl.filename?
+          , 'cookie: FTN5K=' +dl.cookie
+          , '>'
+          , ''
+        ].join('\r\n')
     }
 
     $file.attr('href', 'data:text/plain;charset=utf-8,' +encodeURIComponent(file))
     $code.val(code)
+
+    $idm.attr('href', 'data:text/plain;charset=utf-8,' +encodeURIComponent(idm))
 }
 
 /// =====
@@ -575,6 +585,8 @@ injectStyle((function () {/*
     margin: 8px;
 }
 .ex_file a {
+    display: inline-block;
+    margin-right: 14px;
 }
 .ex_code {
     margin: 0 8px;
