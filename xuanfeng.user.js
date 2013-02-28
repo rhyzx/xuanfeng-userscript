@@ -1,22 +1,12 @@
 // ==UserScript==
 // @name       XuanFengEx
 // @namespace  https://github.com/rhyzx/xuanfeng-userscript
-// @version    0.1.1
+// @version    0.2.0
 // @description  QQ旋风网页版离线下载增强
 // @match      http://lixian.qq.com/main.html*
 // @copyright  2013+, rhyzx
 // ==/UserScript==
 
-// Features
-// - simplify ui
-// - aria2 export
-// - aria2 rpc
-// - auto login / remember?
-// - magnet
-// - fold magnet/bt
-//
-// - wget/IDM? optional
-// - share add to lixian?
 
 /**
  * export downloads
