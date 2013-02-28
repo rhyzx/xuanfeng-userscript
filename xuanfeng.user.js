@@ -32,8 +32,73 @@ EventHandler.task_batch2local = function (e) {
 
 
 // aria rpc
+var $export = $('#task_dl_local')
+var $rpc = $export.clone()
+            .removeAttr('onclick')
+            .attr('id', 'task_dl_rpc')
+            .find('em').text('RPC').end()
+            .insertAfter($export)
 
-//TODO $('#task_dl_local').clone().removeAttr('onclick').attr('id', 'task_dl_rpc').insertAfter()
+// diable/enable bottom
+$(document).click(function () {
+    if ($export.hasClass('disabled_btn'))
+        $rpc.addClass('disabled_btn')
+    else
+        $rpc.removeClass('disabled_btn')
+})
+
+$rpc.click(function () {
+    if ($rpc.hasClass('disabled_btn')) return
+    msg.show('获取下载地址中...', 0, 5000)
+
+    requestDownloadLinks(function (dls) {
+        msg.hide()
+        
+        var url = localStorage.getItem('rpc-url')
+        if (url) {
+            msg.show('rpc请求中...', 0, 5000)
+
+            // fail show rpc pop
+            msg.show('rpc请求失败', 2, 2000)
+            g_pop_rpc.showConfig(function (url, config) {
+            }, url)
+        } else {
+            msg.show('rpc地址未设置', 3, 2000)
+            g_pop_rpc.showConfig(function (url, config) {
+                
+            }, 'http://localhost:6800/jsonrpc') // default url
+        }
+    })
+})
+
+function rpc(url, dls) {
+    msg.show('rpc请求中...', 0, 5000)
+    // fail show rpc pop
+    msg.show('rpc请求失败', 2, 2000)
+}
+
+/*
+EF.rpc = function (data) {
+        var data = task_info;
+        var url = jQuery("#rpc-url").val();
+        if(url == undefined){
+            url = localStorage.rpc;
+        }else{
+            localStorage.rpc = url;
+        }
+        var count = data.length;
+        for (var i=0;i<count;i++) {
+            var tmp = data[i];
+            var uri = { 'jsonrpc': '2.0', 'id': (new Date()).getTime().toString(), 'method': 'aria2.addUri', 'params': [[tmp.url, ], { 'out': tmp.name, 'header': 'Cookie: FTN5K=' + tmp.cookie}] }; ,'split':'10','continue':'true','max-conection-per-server':'5','parameterized-uri':'true'}]};
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url + "?tm=" + (new Date()).getTime().toString(), true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            xhr.send(JSON.stringify(uri));
+        }
+        XF.widget.msgbox.hide();
+        XF.widget.msgbox.show("任务已经添加至aria2-rpc,请自行查看", 0, 1000, false)
+    }
+*/
 
 
 // get selected tasks' download link/cookie/filename
