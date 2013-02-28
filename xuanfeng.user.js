@@ -7,7 +7,6 @@
 // @copyright  2013+, rhyzx
 // ==/UserScript==
 
-
 /**
  * export downloads
  */
@@ -30,75 +29,6 @@ EventHandler.task_batch2local = function (e) {
     })
 }
 
-
-// aria rpc
-var $export = $('#task_dl_local')
-var $rpc = $export.clone()
-            .removeAttr('onclick')
-            .attr('id', 'task_dl_rpc')
-            .find('em').text('RPC').end()
-            .insertAfter($export)
-
-// diable/enable bottom
-$(document).click(function () {
-    if ($export.hasClass('disabled_btn'))
-        $rpc.addClass('disabled_btn')
-    else
-        $rpc.removeClass('disabled_btn')
-})
-
-$rpc.click(function () {
-    if ($rpc.hasClass('disabled_btn')) return
-    msg.show('获取下载地址中...', 0, 5000)
-
-    requestDownloadLinks(function (dls) {
-        msg.hide()
-        
-        var url = localStorage.getItem('rpc-url')
-        if (url) {
-            msg.show('rpc请求中...', 0, 5000)
-
-            // fail show rpc pop
-            msg.show('rpc请求失败', 2, 2000)
-            g_pop_rpc.showConfig(function (url, config) {
-            }, url)
-        } else {
-            msg.show('rpc地址未设置', 3, 2000)
-            g_pop_rpc.showConfig(function (url, config) {
-                
-            }, 'http://localhost:6800/jsonrpc') // default url
-        }
-    })
-})
-
-function rpc(url, dls) {
-    msg.show('rpc请求中...', 0, 5000)
-    // fail show rpc pop
-    msg.show('rpc请求失败', 2, 2000)
-}
-
-/*
-EF.rpc = function (data) {
-        var data = task_info;
-        var url = jQuery("#rpc-url").val();
-        if(url == undefined){
-            url = localStorage.rpc;
-        }else{
-            localStorage.rpc = url;
-        }
-        var count = data.length;
-        for (var i=0;i<count;i++) {
-            var tmp = data[i];
-            var uri = { 'jsonrpc': '2.0', 'id': (new Date()).getTime().toString(), 'method': 'aria2.addUri', 'params': [[tmp.url, ], { 'out': tmp.name, 'header': 'Cookie: FTN5K=' + tmp.cookie}] }; ,'split':'10','continue':'true','max-conection-per-server':'5','parameterized-uri':'true'}]};
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", url + "?tm=" + (new Date()).getTime().toString(), true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            xhr.send(JSON.stringify(uri));
-        }
-        XF.widget.msgbox.hide();
-        XF.widget.msgbox.show("任务已经添加至aria2-rpc,请自行查看", 0, 1000, false)
-    }
-*/
 
 
 // get selected tasks' download link/cookie/filename
@@ -147,6 +77,108 @@ function requestDownloadLinks(callback) {
                 callback(downloads)
             }
         })
+    })
+}
+window.requestDownloadLinks = requestDownloadLinks // export to global
+
+/// =====
+})
+
+
+/**
+ * aria rpc
+ */
+injectScript(function recall() {
+// ======
+
+var $       = window.jQuery
+  , msg     = window.XF.widget.msgbox
+
+
+// button
+var $export = $('#task_dl_local')
+var $rpc = $export.clone()
+            .removeAttr('onclick')
+            .attr('id', 'task_dl_rpc')
+            .find('em').text('RPC').end()
+            .insertAfter($export)
+
+// diable/enable botton
+$(document).click(function () {
+    $export.hasClass('disabled_btn') 
+        ? $rpc.addClass('disabled_btn')
+        : $rpc.removeClass('disabled_btn')
+})
+
+
+$rpc.click(function (evt) {
+    if ($rpc.hasClass('disabled_btn')) return
+
+    var config = {
+        url : localStorage.getItem('rpc-url')
+      , user: localStorage.getItem('rpc-user')
+      , pass: localStorage.getItem('rpc-pass')
+    }
+    if (config.url) {
+        msg.show('获取下载地址中...', 0, 5000)
+        requestDownloadLinks(function (dls) {
+            msg.show('rpc请求中...', 0, 5000)
+
+            rpc(dls, config)
+            .done(function () {
+                msg.show('成功', 1, 2000)
+            })
+            .fail(function () {
+                msg.show('rpc请求失败,请检查设置', 2, 2000)
+                g_pop_rpc.showConfig(config)
+            })
+        })
+    } else {
+        msg.show('rpc未设置', 3, 2000)
+        g_pop_rpc.showConfig() // default url
+    }
+})
+
+
+function rpc(dls, config) {
+    var data = []
+    $.each(dls, function (k, dl) {
+        data.push({
+            jsonrpc : '2.0'
+          , id      : 'down_' +k
+          , method  : 'aria2.addUri'
+          , params  : [
+                [dl.url]
+              , {
+                    out     : dl.filename
+                  , header  : 'Cookie: FTN5K=' +dl.cookie
+                  , continue: true
+                  , split   : 10
+                  , 'max-conection-per-server' : 10
+                }
+            ]
+        })
+    })
+
+    
+    // http authorization
+    var beforeSend
+    if (config.user) {
+        if (typeof btoa !== 'function') return alert('你的浏览器不支持验证，请不要设置用户名和密码')
+        beforeSend = function (xhr) {
+            xhr.setRequestHeader(
+              'Authorization',
+              'Basic ' +btoa( config.user +':' +config.pass )
+            )
+        }
+    }
+
+    // return Deferred Obj
+    return $.ajax(config.url, {
+        data    : JSON.stringify(data)
+      , type    : 'POST'
+      , cache   : false
+      , beforeSend : beforeSend
     })
 }
 
@@ -502,7 +534,7 @@ $(document).delegate('.bt_row .seltbox input', 'click', function () {
 
 
 /**
- * add multi task
+ * TODO add multi task
  */
 injectScript(function () {
 // ======
@@ -614,6 +646,69 @@ pop.setDownloads = function (dls) {
 
     $idm.attr('href', 'data:text/plain;charset=utf-8,' +encodeURIComponent(idm))
 }
+
+/// =====
+})
+
+
+/**
+ * rpc config dialogBox
+ */
+injectScript(function () {
+// ======
+
+var $       = window.jQuery
+  , xfDialog= window.xfDialog
+  , msg     = window.XF.widget.msgbox
+
+var $rpc = $((function () {/*
+<div id="ex_rpc_config" class="com_win">
+    <div class="com_win_head_wrap"> <h1><em>Aria RPC设置</em> <span class="close_win" title="关闭"><a href="###"></a></span></h1></div>
+    <div class="com_win_cont_wrap">
+        <div class="com_win_cont">
+            <div class="pop">
+                <div class="con">
+                    <form action="#">
+                        <div class="">
+                            <p class="p1"><label>地址：</label><input name="url" type="text"></p>
+                            <p class="p2"><label>用户：</label><input name="user" type="text"></p>
+                            <p class="p2"><label>密码：</label><input name="pass" type="password"></p>
+                        </div>
+                        <p class="discr">
+                            <a href="javascript:;" class="com_opt_btn ok"><span><em>确定</em></span></a>
+                        </p>
+                    </form>
+                    <p style="margin-top:20px"><code>&gt; aria2c --enable-rpc=true --rpc-allow-origin-all=true --rpc-user=test --rpc-passwd=123</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="com_win_foot_wrap"><div class="com_win_foot"></div></div>
+</div>
+*/}).toString().slice(16, -4)).appendTo('#popup_area')
+
+var pop = window.g_pop_rpc = new xfDialog('ex_rpc_config')
+
+var elements    = $rpc.find('form:first').get(0).elements
+  , url = elements.url
+  , user = elements.user
+  , pass = elements.pass
+
+
+pop.showConfig = function (config) {
+    config = config || {}
+    url.value = config.url || 'http://localhost:6800/jsonrpc'
+    user.value = config.user || ''
+    pass.value = config.pass || ''
+    this.show()
+}
+
+$rpc.find('.ok:first').click(function () {
+    pop.hide()
+    localStorage.setItem('rpc-url', url.value)
+    localStorage.setItem('rpc-user', user.value)
+    localStorage.setItem('rpc-pass', pass.value)
+})
 
 /// =====
 })
@@ -836,6 +931,10 @@ injectStyle((function () {/*
 }
 .bg_curr .p2 {
     display: block !important;
+}
+#ex_rpc_config {
+    width: 460px;
+    margin-left: -230px;
 }
 */}).toString().slice(16, -4)) // extract css in function
 
