@@ -15,8 +15,9 @@ Features
 - IDM文件导出
 - 自动登录
 - magnet链接支持
-- TODO Aria2 RPC
+- TODO 批量任务添加
 - TODO bt任务文件夹折叠
+- TODO Aria2 RPC
 
 
 Screenshots
