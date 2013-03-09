@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       XuanFengEx
 // @namespace  https://github.com/rhyzx/xuanfeng-userscript
-// @version    0.3.1
+// @version    0.3.2
 // @description  QQ旋风网页版离线下载增强
 // @match      http://lixian.qq.com/main.html*
 // @copyright  2013+, rhyzx
@@ -391,10 +391,12 @@ QQVIP.template.show = function (options) {
 }
 
 // rewrite
+// toggle bt tasks display
 var isBt    = /^bt_/, $curr = $()
 EventHandler.task_op_display = function (obj, taskid) {
     var $e = $(obj)
 
+    // bt row, toggle it's task list
     if (taskid.match(isBt)) {
         var $items = $('#task_info_body > .' +taskid)
 
@@ -402,12 +404,16 @@ EventHandler.task_op_display = function (obj, taskid) {
         $e.data('show', !show)
         show ? $items.hide() : $items.show()
         
+    // normal task, show info
+    // default hanlder will clear DOM class
+    // so show info by self code
     } else {
+        EventHandler.get_http_url(taskid) // show normal download link
         $curr.removeClass('bg_curr')
         $curr = $e.parent().parent()
 
-        // only active visible task
-        if (!$curr.is(':hidden')) $curr.addClass('bg_curr')
+        // only show visible task's info
+        if ($curr.is(':visible')) $curr.addClass('bg_curr')
     }
 }
 
@@ -417,6 +423,7 @@ $(document).delegate('.bt_row .seltbox input', 'click', function () {
     $items.find('.seltbox input').attr('checked', this.checked)
     EventHandler.set_top_button() // enable/disable export btn
 })
+
 
 /// =====
 })
@@ -430,6 +437,25 @@ injectScript(function () {
 var $ = window.jQuery
 /// =====
 })
+
+
+
+/**
+ * others
+ */
+injectScript(function () {
+// ======
+var $ = window.jQuery
+
+// break normal download restrict
+EventHandler.httpDownload = function () {
+// big size download will be blocked by default
+// just clear this code
+}
+
+/// =====
+})
+
 
 
 
