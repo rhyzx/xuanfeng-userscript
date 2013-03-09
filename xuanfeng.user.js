@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       XuanFengEx
 // @namespace  https://github.com/rhyzx/xuanfeng-userscript
-// @version    0.2.0
+// @version    0.3.0
 // @description  QQ旋风网页版离线下载增强
 // @match      http://lixian.qq.com/main.html*
 // @copyright  2013+, rhyzx
@@ -317,22 +317,121 @@ window.queryUrl = function (
 injectScript(function () {
 // ======
 
+var $       = window.jQuery
+  , format  = new CTaskParaFormat
+
 // rewrite
 var _show = QQVIP.template.show
 QQVIP.template.show = function (options) {
-    var taskList = options.JSON
+    var taskList = options.JSON, newList = []
+
+    var bt // last bt task
+      , key = 0
     for (var i=0, task; task=taskList[i++];) {
         // show full name
         task.task_short_file_name = task.task_file_name
 
-        // TODO fold?
-        //task_org_url: "DB7B0F2264494DAFCD20CACB410399CC65230819_0"
+        // bt task url pattern: hash_index
+        // eg. task_org_url: "DB7B0F2264494DAFCD20CACB410399CC65230819_0"
+        var hash = task.task_org_url.split('_')
+        if (hash.length > 1) { // is bt
+            if (!bt || bt.hash !== hash[0]) { // new bt
+                bt = {
+                    hash            : hash[0]
+                  , count           : 0
+                  , cloudplayer_status : 'player_hide'
+                  //, cloudplayer_url: '###'
+                  , eyun_status     : 'eyun_hide'
+                  //, hash: '181674167CD5C63034A212F2BD120BE8A7D8E5E9'
+                  //, not_empty: ''
+                  , org_file_size   : 0
+                  //, player_status: 'player_ok'
+                  //, player_url: 'id=181674167CD5C63034A212F2BD120BE8A7D8E5E9&uin=542521520'
+                  //, task_dl_local_class: ''
+                  , task_dl_speed   : 'BT任务'
+                  , task_done_percent : '0%'
+                  //, task_done_percent_class: 'green'
+                  , task_file_name  : '[BT]' +task.task_file_name
+                  , task_file_size  : '0'
+                  , task_file_type  : 'icon_bt'
+                  , task_id         : 'bt_' +key++ // key for select
+                  , task_left_days  : task.task_left_days
+                  //, task_org_url: '8DAB9FC87D97F44B3C613C4F75D09094E3291DB6_6'
+                  //, task_org_url_class: 'elem_hide'
+                  , task_row_status : 'bt_row'
+                  //, task_share_class: ''
+                  , task_short_file_name : '[BT]' +task.task_file_name
+                  , task_status     : 'icon_bt_unfold' 
+                }
+                newList.push(bt)
+            }
+
+            // add class for toggle display
+            task.task_row_status = (task.task_row_status || '') +' bt_task ' + bt.task_id
+
+            // update bt summary info
+            bt.count++
+            bt.org_file_size += task.org_file_size
+            bt.task_file_size = format.formatFilesize(bt.org_file_size)
+            bt.task_done_percent
+                = parseInt(bt.task_done_percent)/bt.count * (bt.count- 1)
+                + parseInt(task.task_done_percent)/bt.count
+                + '%'
+
+            bt.task_done_percent_class = bt.task_done_percent === '100%' ? 'green' : ''
+            
+        }
+
+
+        newList.push(task)
     }
+
+    options.JSON = newList
     _show.call(QQVIP.template, options)
 }
 
+// rewrite
+var isBt    = /^bt_/, $curr = $()
+EventHandler.task_op_display = function (obj, taskid) {
+    var $e = $(obj)
+
+    if (taskid.match(isBt)) {
+        var $items = $('#task_info_body > .' +taskid)
+
+        var show = !!$e.data('show')
+        $e.data('show', !show)
+        show ? $items.hide() : $items.show()
+        
+    } else {
+        $curr.removeClass('bg_curr')
+        $curr = $e.parent().parent()
+
+        // only active visible task
+        if (!$curr.is(':hidden')) $curr.addClass('bg_curr')
+    }
+}
+
+// select all in bt
+$(document).delegate('.bt_row .seltbox input', 'click', function () {
+    var $items = $('#task_info_body > .' +this.id.slice(9)) // task_sel_bt_0
+    $items.find('.seltbox input').attr('checked', this.checked)
+    EventHandler.set_top_button() // enable/disable export btn
+})
+
 /// =====
 })
+
+
+/**
+ * add multi task
+ */
+injectScript(function () {
+// ======
+var $ = window.jQuery
+/// =====
+})
+
+
 
 
 /**
@@ -388,6 +487,8 @@ pop.setDownloads = function (dls) {
           , '  header=Cookie: FTN5K=' +dl.cookie
           , '  out=' +dl.filename
           , '  continue=true'
+          , '  max-connection-per-server=10'
+          , '  split=10'
           , '\n'
         ].join('\n')
 
@@ -607,6 +708,32 @@ injectStyle((function () {/*
 }
 .ex_vimg {
     vertical-align: middle;
+}
+
+.bt_row {
+    background: #f6fef8;
+}
+.bt_task {
+    display: none;
+}
+.bt_task .seltbox input {
+    margin-left: 20px;
+}
+.icon_bt {
+    padding-left: 20px;
+    height: 16px;
+    line-height: 16px;
+    font-style: normal;
+    background-repeat: no-repeat;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAGrSURBVDjLxZO7ihRBFIa/6u0ZW7GHBUV0UQQTZzd3QdhMQxOfwMRXEANBMNQX0MzAzFAwEzHwARbNFDdwEd31Mj3X7a6uOr9BtzNjYjKBJ6nicP7v3KqcJFaxhBVtZUAK8OHlld2st7Xl3DJPVONP+zEUV4HqL5UDYHr5xvuQAjgl/Qs7TzvOOVAjxjlC+ePSwe6DfbVegLVuT4r14eTr6zvA8xSAoBLzx6pvj4l+DZIezuVkG9fY2H7YRQIMZIBwycmzH1/s3F8AapfIPNF3kQk7+kw9PWBy+IZOdg5Ug3mkAATy/t0usovzGeCUWTjCz0B+Sj0ekfdvkZ3abBv+U4GaCtJ1iEm6ANQJ6fEzrG/engcKw/wXQvEKxSEKQxRGKE7Izt+DSiwBJMUSm71rguMYhQKrBygOIRStf4TiFFRBvbRGKiQLWP29yRSHKBTtfdBmHs0BUpgvtgF4yRFR+NUKi0XZcYjCeCG2smkzLAHkbRBmP0/Uk26O5YnUActBp1GsAI+S5nRJJJal5K1aAMrq0d6Tm9uI6zjyf75dAe6tx/SsWeD//o2/Ab6IH3/h25pOAAAAAElFTkSuQmCC)
+}
+
+.bg_curr {
+    pointer: normal !important;
+    background: #d2eeff !important;
+}
+.bg_curr .p2 {
+    display: block !important;
 }
 */}).toString().slice(16, -4)) // extract css in function
 
