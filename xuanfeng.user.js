@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       XuanFengEx
 // @namespace  https://github.com/rhyzx/xuanfeng-userscript
-// @version    0.3.0
+// @version    0.3.1
 // @description  QQ旋风网页版离线下载增强
 // @match      http://lixian.qq.com/main.html*
 // @copyright  2013+, rhyzx
@@ -715,6 +715,10 @@ injectStyle((function () {/*
 }
 .bt_task {
     display: none;
+}
+.bt_task td:first-child ,
+.bt_row  td:first-child {
+    border-left: 3px solid #9fe5b1;
 }
 .bt_task .seltbox input {
     margin-left: 20px;
