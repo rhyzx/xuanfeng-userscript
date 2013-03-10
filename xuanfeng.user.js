@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       XuanFengEx
 // @namespace  https://github.com/rhyzx/xuanfeng-userscript
-// @version    0.3.2
+// @version    0.3.3
 // @description  QQ旋风网页版离线下载增强
 // @match      http://lixian.qq.com/main.html*
 // @copyright  2013+, rhyzx
@@ -97,36 +97,33 @@ function requestDownloadLinks(callback) {
 /**
  * auto login
  */
-// load qq login lib (md5, hexchar2bin)
-injectScript('http://imgcache.qq.com/ptlogin/ver/10021/js/comm.js', true)
-injectScript(function () {
+injectScript(function recall() {
 // ======
-
-// execute after qq lib loaded
-window.g_href = '' // prevent lib abort
-var callbacks = []
-function onScriptLoad(callback) {
-    if (typeof callback === 'function')
-        callbacks.push(callback)
-}
-
-var pt = {
-    // login lib will call this
-    init: function () {
-        callbacks.forEach(function (callback) {
-            callback()
-        })
-    }
-}
-window.__defineGetter__('pt', function () {
-    return pt // prevent rewrite
-})
-
-
 
 var $       = window.jQuery
   , msg     = window.XF.widget.msgbox
   , cookie  = window.QZFL.cookie
+
+
+// load qq login lib (md5, hexchar2bin)
+if (typeof md5 === 'undefined') {
+    // prevent lib abort
+    window.g_appid = 0
+    window.g_href = ''
+    document.loginform = {}
+
+    var dfd = $.getScript('http://imgcache.qq.com/ptlogin/ver/10021/js/comm.js').done(recall)
+
+    // delay login calls that before lib loaded
+    QQXF.COMMON.backToLogin = function (time) {
+        dfd.done(function () {
+            QQXF.COMMON.backToLogin(time)
+        })
+    }
+
+    // exec below codes after lib loaed
+    return
+}
 
 
 // rewrite
@@ -173,11 +170,9 @@ function checkVC(uin, callback) {
 window.checkVC = checkVC // export
 // check vc callback
 //ptui_checkVC('0','!JTF','\x00\x00\x00\x00\x20\x56\x38\xb0');
-onScriptLoad(function () {
-    window.ptui_checkVC = function (code, vcode, vc) {
-        vcallback.apply(null, arguments)
-    }
-})
+window.ptui_checkVC = function (code, vcode, vc) {
+    vcallback.apply(null, arguments)
+}
 
 // login main
 function login (uin, passhex, vcode, vc) {
@@ -194,20 +189,18 @@ function login (uin, passhex, vcode, vc) {
 // login callback
 // code? ? url ? info usr
 //ptuiCB('4','3','','0','登录失败，请重试。*', '100000');
-onScriptLoad(function () {
-    window.ptuiCB = function (code, x, url, x2, tip, usr) {
-        if (code == '0') {
-            msg.show(tip, 1, 5000)
-        } else {
-            msg.show(tip, 2, 5000)
-            localStorage.removeItem('passhex')
-        }
-
-        setTimeout(function () {
-            window.location.reload()
-        }, 800)
+window.ptuiCB = function (code, x, url, x2, tip, usr) {
+    if (code == '0') {
+        msg.show(tip, 1, 5000)
+    } else {
+        msg.show(tip, 2, 5000)
+        localStorage.removeItem('passhex')
     }
-})
+
+    setTimeout(function () {
+        window.location.reload()
+    }, 800)
+}
 
 
 // logout main
@@ -237,7 +230,7 @@ var $   = window.jQuery
 var isMagnet = /^magnet:\?/i
 // set cookie for requesting xunlei's magnet api
 $.getScript('http://pyproxy.duapp.com/http://httpbin.duapp.com/cookies/set?userid=21')
-.then(function () {
+ .then(function () {
     $('#input_tips').text('请输入HTTP/eD2k/magnet链接')
 
     // rewrite
@@ -772,14 +765,10 @@ injectStyle((function () {/*
 
 
 // execute code in the content page scope
-function injectScript(source, isURL) {
+function injectScript(source) {
     var script = document.createElement('script')
     script.setAttribute('type', 'text/javascript')
-
-    if (isURL)
-        script.src = source
-    else
-        script.textContent = ';(' + source.toString() + ')()'
+    script.textContent = ';(' + source.toString() + ')()'
 
     document.body.appendChild(script)
     document.body.removeChild(script)
