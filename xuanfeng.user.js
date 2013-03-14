@@ -231,7 +231,7 @@ var isMagnet = /^magnet:\?/i
 // set cookie for requesting xunlei's magnet api
 $.getScript('http://pyproxy.duapp.com/http://httpbin.duapp.com/cookies/set?userid=21')
  .then(function () {
-    $('#input_tips').text('请输入HTTP/eD2k/magnet链接')
+    var $tips = $('#input_tips').text('请输入HTTP/eD2k/magnet链接')
 
     // rewrite
     var _info = EventHandler.set_hide_info
@@ -239,10 +239,15 @@ $.getScript('http://pyproxy.duapp.com/http://httpbin.duapp.com/cookies/set?useri
     EventHandler.set_hide_info = function () {
         var url = input.value//.replace(/,/g, '_')
 
-        if (url.match(isMagnet))
+        if (url.match(isMagnet)) {
             addMagnetTask(url)
-        else
+        } else {
             _info.apply(EventHandler, arguments)
+        }
+
+        // clean up
+        input.value = ''
+        $tips.blur()
     }
 })
 
@@ -306,6 +311,7 @@ window.queryUrl = function (
 
 /**
  * fold bt
+ * TODO fold new tasks
  */
 injectScript(function () {
 // ======
