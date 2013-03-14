@@ -366,16 +366,17 @@ QQVIP.template.show = function (options) {
             }
 
             // add class for toggle display
-            task.task_row_status = (task.task_row_status || '') +' bt_task ' + bt.task_id
+            task.task_row_status = (task.task_row_status || '') +' bt_task_row ' + bt.task_id
 
             // update bt summary info
             bt.count++
             bt.org_file_size += task.org_file_size
             bt.task_file_size = format.formatFilesize(bt.org_file_size)
-            bt.task_done_percent
-                = parseInt(bt.task_done_percent)/bt.count * (bt.count- 1)
-                + parseInt(task.task_done_percent)/bt.count
-                + '%'
+            var percent = parseInt(bt.task_done_percent)/bt.count * (bt.count- 1)
+                        + parseInt(task.task_done_percent)/bt.count
+
+            bt.task_done_percent = percent.toFixed(2) +'%'
+
 
             bt.task_done_percent_class = bt.task_done_percent === '100%' ? 'green' : ''
             
@@ -738,14 +739,14 @@ injectStyle((function () {/*
 .bt_row {
     background: #f6fef8;
 }
-.bt_task {
+.bt_task_row {
     display: none;
 }
-.bt_task td:first-child ,
+.bt_task_row td:first-child ,
 .bt_row  td:first-child {
     border-left: 3px solid #9fe5b1;
 }
-.bt_task .seltbox input {
+.bt_task_row .seltbox input {
     margin-left: 20px;
 }
 .icon_bt {
