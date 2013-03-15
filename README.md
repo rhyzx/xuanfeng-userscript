@@ -15,8 +15,8 @@ Features
 - IDM文件导出
 - 自动登录
 - magnet链接支持
-- TODO 批量任务添加
 - bt任务文件夹折叠
+- TODO 批量任务添加
 - TODO Aria2 RPC
 
 
@@ -26,6 +26,7 @@ Screenshots
 ![Export](https://raw.github.com/rhyzx/xuanfeng-userscript/master/screenshot/export.png)
 ![Magnet](https://raw.github.com/rhyzx/xuanfeng-userscript/master/screenshot/magnet.png)
 ![Login](https://raw.github.com/rhyzx/xuanfeng-userscript/master/screenshot/login.png)
+![BT Fold](https://raw.github.com/rhyzx/xuanfeng-userscript/master/screenshot/bt-fold.png)
 
 
 
