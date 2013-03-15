@@ -311,13 +311,24 @@ window.queryUrl = function (
 
 /**
  * fold bt
- * TODO fold new tasks
+ * TODO update bt info when task update
  */
 injectScript(function () {
 // ======
 
 var $       = window.jQuery
   , format  = new CTaskParaFormat
+
+// rewrite
+// add url to new task
+var _getInfo = CTaskOp.prototype.getTaskTemplateInfo
+CTaskOp.prototype.getTaskTemplateInfo = function (task) {
+    var info = _getInfo.apply(this, arguments)
+    if (!task.task_type && !task.file_url) {
+        info.task_org_url = task.bt_id
+    }
+    return info
+}
 
 // rewrite
 var _show = QQVIP.template.show
