@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       XuanFengEx
 // @namespace  https://github.com/rhyzx/xuanfeng-userscript
-// @version    0.4.0
+// @version    0.4.1
 // @description  QQ旋风网页版离线下载增强
 // @match      http://lixian.qq.com/main.html*
 // @copyright  2013+, rhyzx
@@ -334,6 +334,7 @@ CTaskOp.prototype.getTaskTemplateInfo = function (task) {
 var _show = QQVIP.template.show
 QQVIP.template.show = function (options) {
     var taskList = options.JSON, newList = []
+    console.log(taskList);
 
     var bt // last bt task
       , key = 0
@@ -343,7 +344,7 @@ QQVIP.template.show = function (options) {
 
         // bt task url pattern: hash_index
         // eg. task_org_url: "DB7B0F2264494DAFCD20CACB410399CC65230819_0"
-        var hash = task.task_org_url.split('_')
+        var hash = (task.task_org_url || '').split('_')
         if (hash.length > 1) { // is bt
             if (!bt || bt.hash !== hash[0]) { // new bt
                 bt = {
