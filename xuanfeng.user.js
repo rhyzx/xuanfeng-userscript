@@ -38,26 +38,21 @@ EventHandler.task_batch2local = function (e) {
 
 // get selected tasks' download link/cookie/filename
 // callback(dowloads)
-var tasks = window.g_task_op.last_task_info
 function requestDownloadLinks(callback) {
     var count = 0
       , downloads = []
 
-    var task, tid
-    for (tid in tasks) {
-        task = tasks[tid]
+    $.each(window.g_task_op.last_task_info, function (tid, task) {
         // check
         if (
-            task !== null                           &&
-            !check_failed_task(tid)                 &&
-            $('#task_sel_' +tid +':checked').length && // user selected
-            task.file_size === task.comp_size       && // download finished
-            task.dl_status === TASK_STATUS['ST_UL_OK']
-        ) request(task)
+            task === null                           ||
+            check_failed_task(tid)                  ||
+            !$('#task_sel_' +tid +':checked').length|| // user selected
+            task.file_size !== task.comp_size       || // download finished
+            task.dl_status !== TASK_STATUS['ST_UL_OK']
+        ) return
 
-    }
-    
-    function request(task) {
+        
         count++
         $.post('/handler/lixian/get_http_url.php', {
             hash    : task.code
@@ -87,7 +82,7 @@ function requestDownloadLinks(callback) {
                 callback(downloads)
             }
         })
-    }
+    })
 }
 
 /// =====
