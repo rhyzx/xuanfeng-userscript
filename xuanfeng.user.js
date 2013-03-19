@@ -329,7 +329,6 @@ CTaskOp.prototype.getTaskTemplateInfo = function (task) {
 var _show = QQVIP.template.show
 QQVIP.template.show = function (options) {
     var taskList = options.JSON, newList = []
-    console.log(taskList);
 
     var bt // last bt task
       , key = 0
