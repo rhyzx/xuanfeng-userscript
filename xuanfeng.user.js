@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       XuanFengEx
 // @namespace  https://github.com/rhyzx/xuanfeng-userscript
-// @version    0.4.1
+// @version    0.4.2
 // @description  QQ旋风网页版离线下载增强
 // @match      http://lixian.qq.com/main.html*
 // @copyright  2013+, rhyzx
@@ -236,13 +236,14 @@ $.getScript('http://pyproxy.duapp.com/http://httpbin.duapp.com/cookies/set?useri
 
         if (url.match(isMagnet)) {
             addMagnetTask(url)
+
+            // clean up
+            input.value = ''
+            $tips.blur()
         } else {
             _info.apply(EventHandler, arguments)
         }
 
-        // clean up
-        input.value = ''
-        $tips.blur()
     }
 })
 
