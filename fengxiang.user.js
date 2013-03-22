@@ -99,7 +99,7 @@ var $export = $((function () {/*
                 >存为IDM文件</a>
             </p>
             <div class="ex_code">
-                <textarea disabled></textarea>
+                <textarea readonly wrap="off"></textarea>
             </div>
         </div>
         </div>
@@ -197,17 +197,17 @@ injectStyle((function () {/*
     color: #2d5b7c;
     display: inline-block;
     margin-right: 14px;
+    outline: none;
 }
 .ex_code {
     margin: 0 8px;
     border: 1px solid #C7E2F1;
+    border-raduis: 4px;
 }
 .ex_code textarea {
     width: 100%;
     height: 180px;
-    line-height: 1.5;
-    font-family: monospace;
-    white-space: nowrap;
+    font: 12px/1.5 monospace;
     border: none;
 }
 
