@@ -16,8 +16,8 @@ Features
 - 自动登录
 - magnet链接支持
 - bt任务文件夹折叠
+- Aria2 RPC
 - TODO 批量任务添加
-- TODO Aria2 RPC
 
 
 Screenshots
