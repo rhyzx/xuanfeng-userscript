@@ -623,7 +623,7 @@ pop.setDownloads = function (dls) {
         ].join('\n')
 
         code += [
-            'aria2c -c -s10 -x10 -o '
+            'aria2c -c -s10 -k1M -x10 -o '
           , dl.filename
           , ' --header '
           , 'Cookie: FTN5K=' +dl.cookie
