@@ -153,8 +153,8 @@ function rpc(dls, config) {
                     out     : dl.filename
                   , header  : 'Cookie: FTN5K=' +dl.cookie
                   , continue: 'true'
-                  , split   : 10
-                  , 'max-conection-per-server' : 10
+                  , split   : '10'
+                  , 'max-connection-per-server' : '10'
                 }
             ]
         })
