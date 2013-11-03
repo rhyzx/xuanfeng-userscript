@@ -10,7 +10,6 @@
 
 // TODO
 // https://userscripts.org/topics/124244
-// https://userscripts.org/topics/133853
 // https://userscripts.org/topics/134086
 
 // TODO
@@ -603,6 +602,10 @@ var $export = $((function () {/*
                     title="IDM"
                     download="idm.ef2"
                 >存为IDM文件</a>
+                <a class="icon_file ex_file_orbit" href="javascript:;" target="_blank"
+                    title="orbit"
+                    download="orbit.olt"
+                >存为Orbit文件</a>
             </p>
             <div class="ex_code">
                 <textarea readonly wrap="off"></textarea>
@@ -619,12 +622,14 @@ var $file = $export.find('.ex_file_aria')
   , $code = $export.find('.ex_code textarea:first')
 
   , $idm  = $export.find('.ex_file_idm')
+  , $orbit= $export.find('.ex_file_orbit')
 
 // setup dialog function
 var pop = window.g_pop_export = new xfDialog('ex_pop_export_dl')
 
+
 pop.setDownloads = function (dls) {
-    var file = '', code = '', idm = ''
+    var file = '', code = '', idm = '', orbit = ''
 
     for (var i=0, dl; dl=dls[i++];) {
         file += [
@@ -654,12 +659,18 @@ pop.setDownloads = function (dls) {
           , '>'
           , ''
         ].join('\r\n')
+
+        orbit += dl.url 
+          +'|' +dl.filename.replace(/\|/g, '_')
+          +'||FTN5K=' +dl.cookie
+          +'\r\n'
     }
 
     $file.attr('href', 'data:text/plain;charset=utf-8,' +encodeURIComponent(file))
     $code.val(code)
 
     $idm.attr('href', 'data:text/plain;charset=utf-8,' +encodeURIComponent(idm))
+    $orbit.attr('href', 'data:text/plain;charset=utf-8,' +encodeURIComponent(orbit))
 }
 
 /// =====
