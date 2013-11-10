@@ -7,6 +7,16 @@
 // @copyright  2013+, rhyzx
 // ==/UserScript==
 
+
+// TODO
+// https://userscripts.org/topics/124244
+// https://userscripts.org/topics/133853
+// https://userscripts.org/topics/134086
+
+// TODO
+// 普通下载修正
+// bt fold修正
+
 /**
  * export downloads
  */
@@ -37,46 +47,51 @@ function requestDownloadLinks(callback) {
     var count = 0
       , downloads = []
 
-    $.each(window.g_task_op.last_task_info, function (tid, task) {
-        // check
-        if (
-            task === null                           ||
-            check_failed_task(tid)                  ||
-            !$('#task_sel_' +tid +':checked').length|| // user selected
-            task.file_size !== task.comp_size       || // download finished
-            task.dl_status !== TASK_STATUS['ST_UL_OK']
-        ) return
+    $.getJSON('/handler/lixian/get_lixian_status.php'/*, {mids : [ids]} NOUSE*/)
+    .done(function (res) {
+        $.each(res.data, function (i, task) {
+            // check
+            if (
+                !$('#task_sel_' +task.mid).is(':checked')|| // user selected
+                task.file_size !== task.comp_size        || // download finished
+                task.dl_status !== TASK_STATUS['ST_UL_OK']
+            ) return
 
-        
-        count++
-        $.post('/handler/lixian/get_http_url.php', {
-            hash    : task.code
-          , filename: task.file_name
-          //, g_tk    : getACSRFToken(cookie.get('skey', 'qq.com'))
-          //, browser : 'other'
-        }, null, 'json')
-        .done(function (res) {
-            count--
-            if (res && res.ret === 0) {
-                downloads.push({
-                    url         : res.data.com_url
-                  , cookie      : res.data.com_cookie
-                  , filename    : task.file_name
-                })
-            }
+            
+            count++
+            $.post('/handler/lixian/get_http_url.php', {
+                hash    : task.code
+              , filename: task.file_name
+              //, g_tk    : getACSRFToken(cookie.get('skey', 'qq.com'))
+              //, browser : 'other'
+            }, null, 'json')
+            .done(function (res) {
+                count--
+                if (res && res.ret === 0) {
+                    downloads.push({
+                        url         : res.data.com_url
+                      , cookie      : res.data.com_cookie
+                      , filename    : task.file_name
+                    })
+                }
+            })
+            .fail(function () {
+                msg.show('获取失败', 2, 2000)
+            })
+            .always(function () {
+                if (count === 0) {
+                    // sort according to filename
+                    downloads.sort(function (a, b) {
+                        return a.filename.localeCompare(b.filename)
+                    })
+                    callback(downloads)
+                }
+            })
+
         })
-        .fail(function () {
-            msg.show('获取失败', 2, 2000)
-        })
-        .always(function () {
-            if (count === 0) {
-                // sort according to filename
-                downloads.sort(function (a, b) {
-                    return a.filename.localeCompare(b.filename)
-                })
-                callback(downloads)
-            }
-        })
+    })
+    .fail(function () {
+        msg.show('获取列表的接口坏了嘛？！ 请联系脚本作者', 2, 2000)
     })
 }
 window.requestDownloadLinks = requestDownloadLinks // export to global
