@@ -13,6 +13,7 @@ Features
 - UI精简
 - Aria2命令/文件导出
 - IDM文件导出
+- Orbit文件导出
 - 自动登录
 - magnet链接支持
 - bt任务文件夹折叠
