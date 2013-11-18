@@ -10,7 +10,6 @@
 
 // TODO
 // https://userscripts.org/topics/124244
-// https://userscripts.org/topics/134086
 
 // TODO
 // 普通下载修正
@@ -333,19 +332,17 @@ var $   = window.jQuery
 
 // orignal code by binux
 // https://gist.github.com/binux/4585941
-var isMagnet = /^magnet:\?/i
-// set cookie for requesting xunlei's magnet api
-$.getScript('http://pyproxy.duapp.com/http://httpbin.duapp.com/cookies/set?userid=21')
- .then(function () {
-    var $tips = $('#input_tips').text('请输入HTTP/eD2k/magnet链接')
-
+$('#input_tips').text('请输入HTTP/eD2k/magnet链接').each(function () {
+    var $tips = $(this)
     // rewrite
     var _info = EventHandler.set_hide_info
       , input = $('#dl_url_id').get(0)
+      
+    var isMagnet = /^magnet:\?/i
     EventHandler.set_hide_info = function () {
         var url = input.value//.replace(/,/g, '_')
 
-        if (url.match(isMagnet)) {
+        if ( isMagnet.test(url) ) {
             addMagnetTask(url)
 
             // clean up
@@ -365,7 +362,7 @@ function addMagnetTask(url) {
 
     $.ajax({
       // callback name is hard coded
-        url     : 'http://pyproxy.duapp.com/http://dynamic.cloud.vip.xunlei.com/interface/url_query?callback=queryUrl'
+        url     : 'http://nyanit.duapp.com/xl-magnet?callback=queryUrl'
       , data    : { u : url }
       , cache   : true
       , dataType: 'script'
