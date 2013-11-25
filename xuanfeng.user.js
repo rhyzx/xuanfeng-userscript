@@ -205,31 +205,13 @@ function rpc(dls, config) {
 injectScript(function recall() {
 // ======
 
+// function from http://imgcache.qq.com/ptlogin/ver/10021/js/comm.js
+var hexchar2bin=function(str){var arr=[];for(var i=0;i<str.length;i=i+2){arr.push("\\x"+str.substr(i,2))}arr=arr.join("");eval("var temp = '"+arr+"'");return temp}
+var md5=function(){var r=1;var n="";var t=8;var a=32;function u(r){return e(r)}function e(r){return g(v(A(r),r.length*t))}function v(r,n){r[n>>5]|=128<<n%32;r[(n+64>>>9<<4)+14]=n;var t=1732584193;var u=-271733879;var e=-1732584194;var v=271733878;for(var i=0;i<r.length;i+=16){var s=t;var A=u;var g=e;var b=v;t=f(t,u,e,v,r[i+0],7,-680876936);v=f(v,t,u,e,r[i+1],12,-389564586);e=f(e,v,t,u,r[i+2],17,606105819);u=f(u,e,v,t,r[i+3],22,-1044525330);t=f(t,u,e,v,r[i+4],7,-176418897);v=f(v,t,u,e,r[i+5],12,1200080426);e=f(e,v,t,u,r[i+6],17,-1473231341);u=f(u,e,v,t,r[i+7],22,-45705983);t=f(t,u,e,v,r[i+8],7,1770035416);v=f(v,t,u,e,r[i+9],12,-1958414417);e=f(e,v,t,u,r[i+10],17,-42063);u=f(u,e,v,t,r[i+11],22,-1990404162);t=f(t,u,e,v,r[i+12],7,1804603682);v=f(v,t,u,e,r[i+13],12,-40341101);e=f(e,v,t,u,r[i+14],17,-1502002290);u=f(u,e,v,t,r[i+15],22,1236535329);t=o(t,u,e,v,r[i+1],5,-165796510);v=o(v,t,u,e,r[i+6],9,-1069501632);e=o(e,v,t,u,r[i+11],14,643717713);u=o(u,e,v,t,r[i+0],20,-373897302);t=o(t,u,e,v,r[i+5],5,-701558691);v=o(v,t,u,e,r[i+10],9,38016083);e=o(e,v,t,u,r[i+15],14,-660478335);u=o(u,e,v,t,r[i+4],20,-405537848);t=o(t,u,e,v,r[i+9],5,568446438);v=o(v,t,u,e,r[i+14],9,-1019803690);e=o(e,v,t,u,r[i+3],14,-187363961);u=o(u,e,v,t,r[i+8],20,1163531501);t=o(t,u,e,v,r[i+13],5,-1444681467);v=o(v,t,u,e,r[i+2],9,-51403784);e=o(e,v,t,u,r[i+7],14,1735328473);u=o(u,e,v,t,r[i+12],20,-1926607734);t=c(t,u,e,v,r[i+5],4,-378558);v=c(v,t,u,e,r[i+8],11,-2022574463);e=c(e,v,t,u,r[i+11],16,1839030562);u=c(u,e,v,t,r[i+14],23,-35309556);t=c(t,u,e,v,r[i+1],4,-1530992060);v=c(v,t,u,e,r[i+4],11,1272893353);e=c(e,v,t,u,r[i+7],16,-155497632);u=c(u,e,v,t,r[i+10],23,-1094730640);t=c(t,u,e,v,r[i+13],4,681279174);v=c(v,t,u,e,r[i+0],11,-358537222);e=c(e,v,t,u,r[i+3],16,-722521979);u=c(u,e,v,t,r[i+6],23,76029189);t=c(t,u,e,v,r[i+9],4,-640364487);v=c(v,t,u,e,r[i+12],11,-421815835);e=c(e,v,t,u,r[i+15],16,530742520);u=c(u,e,v,t,r[i+2],23,-995338651);t=h(t,u,e,v,r[i+0],6,-198630844);v=h(v,t,u,e,r[i+7],10,1126891415);e=h(e,v,t,u,r[i+14],15,-1416354905);u=h(u,e,v,t,r[i+5],21,-57434055);t=h(t,u,e,v,r[i+12],6,1700485571);v=h(v,t,u,e,r[i+3],10,-1894986606);e=h(e,v,t,u,r[i+10],15,-1051523);u=h(u,e,v,t,r[i+1],21,-2054922799);t=h(t,u,e,v,r[i+8],6,1873313359);v=h(v,t,u,e,r[i+15],10,-30611744);e=h(e,v,t,u,r[i+6],15,-1560198380);u=h(u,e,v,t,r[i+13],21,1309151649);t=h(t,u,e,v,r[i+4],6,-145523070);v=h(v,t,u,e,r[i+11],10,-1120210379);e=h(e,v,t,u,r[i+2],15,718787259);u=h(u,e,v,t,r[i+9],21,-343485551);t=l(t,s);u=l(u,A);e=l(e,g);v=l(v,b)}if(a==16){return Array(u,e)}else{return Array(t,u,e,v)}}function i(r,n,t,a,u,e){return l(s(l(l(n,r),l(a,e)),u),t)}function f(r,n,t,a,u,e,v){return i(n&t|~n&a,r,n,u,e,v)}function o(r,n,t,a,u,e,v){return i(n&a|t&~a,r,n,u,e,v)}function c(r,n,t,a,u,e,v){return i(n^t^a,r,n,u,e,v)}function h(r,n,t,a,u,e,v){return i(t^(n|~a),r,n,u,e,v)}function l(r,n){var t=(r&65535)+(n&65535);var a=(r>>16)+(n>>16)+(t>>16);return a<<16|t&65535}function s(r,n){return r<<n|r>>>32-n}function A(r){var n=Array();var a=(1<<t)-1;for(var u=0;u<r.length*t;u+=t){n[u>>5]|=(r.charCodeAt(u/t)&a)<<u%32}return n}function g(n){var t=r?"0123456789ABCDEF":"0123456789abcdef";var a="";for(var u=0;u<n.length*4;u++){a+=t.charAt(n[u>>2]>>u%4*8+4&15)+t.charAt(n[u>>2]>>u%4*8&15)}return a}return u}();
+
 var $       = window.jQuery
   , msg     = window.XF.widget.msgbox
   , cookie  = window.QZFL.cookie
-
-
-// load qq login lib (md5, hexchar2bin)
-if (typeof md5 === 'undefined') {
-    // prevent lib abort
-    window.g_appid = 0
-    window.g_href = ''
-    document.loginform = {}
-
-    var dfd = $.getScript('http://imgcache.qq.com/ptlogin/ver/10021/js/comm.js').done(recall)
-
-    // delay login calls that before lib loaded
-    QQXF.COMMON.backToLogin = function (time) {
-        dfd.done(function () {
-            QQXF.COMMON.backToLogin(time)
-        })
-    }
-
-    // exec below codes after lib loaed
-    return
-}
-
 
 // rewrite
 QQXF.COMMON.backToLogin = function (time) {
