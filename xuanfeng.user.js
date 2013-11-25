@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       XuanFengEx
 // @namespace  https://github.com/rhyzx/xuanfeng-userscript
-// @version    0.6.1
+// @version    0.6.2
 // @description  QQ旋风网页版离线下载增强
 // @match      http://lixian.qq.com/main.html*
 // @copyright  2013+, rhyzx
