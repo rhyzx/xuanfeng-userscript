@@ -58,7 +58,7 @@ function requestDownloadLinks(callback) {
             
             count++
             $.post('/handler/lixian/get_http_url.php', {
-                hash    : task.code
+                hash    : task.hash
               , filename: task.file_name
               //, g_tk    : getACSRFToken(cookie.get('skey', 'qq.com'))
               //, browser : 'other'
