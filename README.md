@@ -16,8 +16,9 @@ Features
 - Orbit文件导出
 - 自动登录
 - magnet链接支持
-- bt任务文件夹折叠
+- bt任务文件夹折叠(halting)
 - Aria2 RPC
+- 限速解除 thanks [@4023](https://userscripts.org/users/381599)
 - TODO 批量任务添加
 
 

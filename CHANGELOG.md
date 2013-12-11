@@ -1,6 +1,9 @@
 # CHANGELOG
 
 
+## 0.7.0
+- **NEW** 解除了下载限速 thanks [@4023](https://userscripts.org/users/381599)
+
 ## 0.6.3
 - **FIXED** 导出失效修复
 
