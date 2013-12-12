@@ -66,8 +66,10 @@ function requestDownloadLinks(callback) {
                     // break speed limit
                     // thanks @4023 https://userscripts.org/users/381599
                     var url = res.data.com_url
-                    url = url.replace('xflx.store.cd.qq.com:443', 'xfcd.ctfs.ftn.qq.com')
-                    url = url.replace('xflx.sz.ftn.qq.com:80', 'sz.disk.ftn.qq.com')
+                        .replace('xflx.store.cd.qq.com:443', 'xfcd.ctfs.ftn.qq.com')
+                        .replace('xflx.sz.ftn.qq.com:80', 'sz.disk.ftn.qq.com')
+                        .replace('xflx.cd.ftn.qq.com:80', 'cd.ctfs.ftn.qq.com')
+                        .replace('xflxsrc.store.qq.com:443', 'xfxa.ctfs.ftn.qq.com')
 
                     downloads.push({
                         url         : url
