@@ -410,6 +410,12 @@ injectScript(function () {
 var $       = window.jQuery
   , format  = new CTaskParaFormat
 
+// fix bt fold
+var _showList = CTaskOp.prototype.showListFromCache
+CTaskOp.prototype.showListFromCache = function (firstGet) {
+    _showList.call(this, true) // always firstGet
+}
+
 // rewrite
 // add url to new task
 var _getInfo = CTaskOp.prototype.getTaskTemplateInfo
