@@ -1,6 +1,9 @@
 # CHANGELOG
 
 
+## 0.7.1
+- **FIXED** bt文件夹折叠修复
+
 ## 0.7.0
 - **NEW** 解除了下载限速 thanks [@4023](https://userscripts.org/users/381599)
 
