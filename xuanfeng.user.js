@@ -345,7 +345,7 @@ function addMagnetTask(url) {
 
     $.ajax({
       // callback name is hard coded
-        url     : 'http://nyanit.duapp.com/xl-magnet?callback=queryUrl'
+        url     : 'http://pew.rhyzx.im/xl-magnet?callback=queryUrl'
       , data    : { u : url }
       , cache   : true
       , dataType: 'script'
