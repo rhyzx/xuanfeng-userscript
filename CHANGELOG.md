@@ -1,8 +1,11 @@
 # CHANGELOG
 
 
+## 0.7.3
+- **FIXED** 迅雷禁掉了magnet接口，使用自建接口 [#19](https://github.com/rhyzx/xuanfeng-userscript/issues/19)
+
 ## 0.7.2
-- **FIXED** 百度云开始收费导致磁力链解析服务失效, 迁移到gae
+- **FIXED** 百度云开始收费导致磁力链解析服务失效，迁移到gae
 
 ## 0.7.1
 - **FIXED** bt文件夹折叠修复
