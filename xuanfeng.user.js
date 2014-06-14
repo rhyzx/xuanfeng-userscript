@@ -319,6 +319,7 @@ $('#input_tips').text('请输入HTTP/eD2k/magnet链接').each(function () {
     var $tips = $(this)
     // rewrite
     var _info = EventHandler.set_hide_info
+
       , input = $('#dl_url_id').get(0)
       
     var isMagnet = /^magnet:\?/i
@@ -339,57 +340,49 @@ $('#input_tips').text('请输入HTTP/eD2k/magnet链接').each(function () {
 })
 
 
+
+// mock bt upload function
+// extract show bt files select function
+var showFileList = (function () {
+    var AjaxUpload = window.AjaxUpload
+    var showFileList
+    window.AjaxUpload = function ($e, options) {
+        showFileList = options.onComplete
+    }
+    window.initTorrent() // call
+    window.AjaxUpload = AjaxUpload // revert
+
+    return showFileList
+})()
+
+
 function addMagnetTask(url) {
     window.g_pop_task.hide()
     msg.show('解析magnet链接中...', 0, 20000, true)
 
     $.ajax({
       // callback name is hard coded
-        url     : 'http://pew.rhyzx.im/xl-magnet?callback=queryUrl'
+        url     : 'http://pew.rhyzx.im/magnet?callback=?'
       , data    : { u : url }
       , cache   : true
-      , dataType: 'script'
+      , dataType: 'jsonp'
+    }).done(function (res) {
+        showFileList(null, JSON.stringify({
+            ret : 0
+          , name: res.name
+          , hash: res.infoHash.toLowerCase()
+          , files : res.files.map(function (item, i) {
+                return {
+                    file_index  : item.index
+                  , file_name   : item.name
+                  , file_size   : item.length_f
+                  , file_size_ori : item.length
+                }
+            })
+        }))
+    }).fail(function ($xhr) {
+        msg.show('解析magnet链接失败:' + $xhr.responseText, 2, 2000)
     })
-}
-
-// mock bt upload function
-// extract show bt files select function
-var showFileList
-!(function () {
-    var tmp = window.AjaxUpload
-    window.AjaxUpload = function ($e, options) {
-        showFileList = options.onComplete
-    }
-    window.initTorrent() // call
-    window.AjaxUpload = tmp // revert
-})()
-
-// callback
-window.queryUrl = function (
-        flag, infohash, fsize,
-        bt_title, is_full, subtitle, subformatsize,
-        size_list, valid_list, file_icon, findex, random
-) {
-    msg.hide()
-
-    if (flag !== 1) return showFileList()
-
-    var files = []
-    for (var i = 0, len=subtitle.length; i<len; i++) {
-        files.push({
-            file_index  : findex[i]
-          , file_name   : subtitle[i]
-          , file_size   : subformatsize[i]
-          , file_size_ori : parseInt(size_list[i], 10)
-        })
-    }
-
-    showFileList(null, JSON.stringify({
-        ret : 0
-      , name: bt_title
-      , hash: infohash.toLowerCase()
-      , files : files
-    }))
 }
 
 /// =====
