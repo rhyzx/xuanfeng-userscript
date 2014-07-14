@@ -130,8 +130,7 @@ $rpc.click(function (evt) {
 
     var config = {
         url : localStorage.getItem('rpc-url')
-      , user: localStorage.getItem('rpc-user')
-      , pass: localStorage.getItem('rpc-pass')
+      , token : localStorage.getItem('rpc-token')
     }
     if (config.url) {
         msg.show('获取下载地址中...', 0, 5000)
@@ -139,11 +138,11 @@ $rpc.click(function (evt) {
             msg.show('rpc请求中...', 0, 5000)
 
             rpc(dls, config)
-            .done(function () {
+            .done(function (res) {
                 msg.show('成功', 1, 2000)
             })
-            .fail(function () {
-                msg.show('rpc请求失败,请检查设置', 2, 2000)
+            .fail(function ($xhr, status, error) {
+                msg.show('rpc请求失败,请检查设置,Message: ' +error, 2, 2000)
                 g_pop_rpc.showConfig(config)
             })
         })
@@ -162,7 +161,8 @@ function rpc(dls, config) {
           , id      : 'down_' +k
           , method  : 'aria2.addUri'
           , params  : [
-                [dl.url]
+                'token:' +config.token || ''
+              , [dl.url]
               , {
                     out     : dl.filename
                   , header  : 'Cookie: FTN5K=' +dl.cookie
@@ -174,25 +174,13 @@ function rpc(dls, config) {
         })
     })
 
-    
-    // http authorization
-    var beforeSend
-    if (config.user) {
-        if (typeof btoa !== 'function') return alert('你的浏览器不支持验证，请不要设置用户名和密码')
-        beforeSend = function (xhr) {
-            xhr.setRequestHeader(
-              'Authorization',
-              'Basic ' +btoa( config.user +':' +config.pass )
-            )
-        }
-    }
-
     // return Deferred Obj
-    return $.ajax(config.url, {
-        data    : JSON.stringify(data)
-      , type    : 'POST'
-      , cache   : false
-      , beforeSend : beforeSend
+    return $.post(config.url, JSON.stringify(data))
+    // filter error
+    .pipe(function (res, status, $xhr) {
+      if (res[0].error) {
+        return $.Deferred().reject($xhr, 'error', res[0].error.message)
+      }
     })
 }
 
@@ -676,14 +664,13 @@ var $rpc = $((function () {/*
                     <form action="#">
                         <div class="">
                             <p class="p1"><label>地址：</label><input name="url" type="text"></p>
-                            <p class="p2"><label>用户：</label><input name="user" type="text"></p>
-                            <p class="p2"><label>密码：</label><input name="pass" type="password"></p>
+                            <p class="p2"><label>Secret Token：</label><input name="token" type="text"></p>
                         </div>
                         <p class="discr">
                             <a href="javascript:;" class="com_opt_btn ok"><span><em>确定</em></span></a>
                         </p>
                     </form>
-                    <p style="margin-top:20px"><code>&gt; aria2c --enable-rpc=true --rpc-allow-origin-all=true --rpc-user=test --rpc-passwd=123</code></p>
+                    <p style="margin-top:20px"><code>&gt; aria2c --enable-rpc=true --rpc-allow-origin-all=true --rpc-secret=token</code></p>
                 </div>
             </div>
         </div>
@@ -696,23 +683,20 @@ var pop = window.g_pop_rpc = new xfDialog('ex_rpc_config')
 
 var elements    = $rpc.find('form:first').get(0).elements
   , url = elements.url
-  , user = elements.user
-  , pass = elements.pass
+  , token = elements.token
 
 
 pop.showConfig = function (config) {
     config = config || {}
     url.value = config.url || 'http://localhost:6800/jsonrpc'
-    user.value = config.user || ''
-    pass.value = config.pass || ''
+    token.value = config.token || ''
     this.show()
 }
 
 $rpc.find('.ok:first').click(function () {
     pop.hide()
     localStorage.setItem('rpc-url', url.value)
-    localStorage.setItem('rpc-user', user.value)
-    localStorage.setItem('rpc-pass', pass.value)
+    localStorage.setItem('rpc-token', token.value)
 })
 
 /// =====
