@@ -1,6 +1,9 @@
 # CHANGELOG
 
 
+## 0.7.4
+- **IMPROVED** 去掉了ARIA RPC的HTTP用户名/密码验证，改用推荐的Secret token验证。
+
 ## 0.7.3
 - **FIXED** 迅雷禁掉了magnet接口，使用自建接口 [#19](https://github.com/rhyzx/xuanfeng-userscript/issues/19)
 
