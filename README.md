@@ -10,16 +10,16 @@ QQ旋风Web版增强脚本
 Features
 --------
 
-- UI精简
-- Aria2命令/文件导出
-- IDM文件导出
-- Orbit文件导出
-- 自动登录
-- magnet链接支持
-- bt任务文件夹折叠(halting)
-- Aria2 RPC
-- 限速解除 thanks [@4023](https://userscripts.org/users/381599)
-- TODO 批量任务添加
+- [x] UI精简
+- [x] Aria2命令/文件导出
+- [x] Aria2 RPC
+- [x] IDM文件导出
+- [x] Orbit文件导出
+- [x] 自动登录
+- [x] magnet链接支持
+- [x] bt任务文件夹折叠
+- [x] 限速解除 thanks [@4023](https://userscripts.org/users/381599)
+- [ ] 批量任务添加
 
 
 Screenshots
