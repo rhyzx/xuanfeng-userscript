@@ -156,13 +156,12 @@ $rpc.click(function (evt) {
 function rpc(dls, config) {
     var data = []
     $.each(dls, function (k, dl) {
-        data.push({
+        var ret = {
             jsonrpc : '2.0'
           , id      : 'down_' +k
           , method  : 'aria2.addUri'
           , params  : [
-                'token:' +config.token || ''
-              , [dl.url]
+                [dl.url]
               , {
                     out     : dl.filename
                   , header  : 'Cookie: FTN5K=' +dl.cookie
@@ -171,7 +170,11 @@ function rpc(dls, config) {
                   , 'max-connection-per-server' : '10'
                 }
             ]
-        })
+        }
+        if (config.token) {
+          ret.params.unshift('token:' +config.token)
+        }
+        data.push(ret)
     })
 
     // return Deferred Obj
