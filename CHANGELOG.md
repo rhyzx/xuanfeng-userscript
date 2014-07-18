@@ -1,6 +1,9 @@
 # CHANGELOG
 
 
+## 0.7.5
+- **FIXED** 修正加入secret token后老版aria RPC无法使用的问题。
+
 ## 0.7.4
 - **IMPROVED** 去掉了ARIA RPC的HTTP用户名/密码验证，改用推荐的Secret token验证。
 
