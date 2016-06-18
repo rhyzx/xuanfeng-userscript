@@ -22,7 +22,7 @@ $('#task_dl_local em').text('导出下载')
 EventHandler.task_batch2local = function (e) {
     if ($(e).hasClass('disabled_btn')) return
     msg.show('获取下载地址中...', 0, 5000)
-    
+
     requestDownloadLinks(function (dls) {
         msg.hide()
         g_pop_export.setDownloads(dls)
@@ -50,7 +50,7 @@ function requestDownloadLinks(callback) {
                 task.dl_status !== TASK_STATUS['ST_UL_OK']
             ) return
 
-            
+
             count++
             $.post('/handler/lixian/get_http_url.php', {
                 hash    : task.hash
@@ -121,7 +121,7 @@ var $rpc = $export.clone()
 
 // diable/enable botton
 $(document).click(function () {
-    $export.hasClass('disabled_btn') 
+    $export.hasClass('disabled_btn')
         ? $rpc.addClass('disabled_btn')
         : $rpc.removeClass('disabled_btn')
 })
@@ -231,7 +231,7 @@ QQXF.COMMON.backToLogin = function (time) {
         // self login
         g_pop_login.showLogin(function (uin, pass, vcode, vc, save) {
             var passhex = hexchar2bin( md5(pass) )
-        
+
             localStorage.setItem('uin', uin)
             if (save) { // save pass
                 localStorage.setItem('passhex', passhex)
@@ -314,7 +314,7 @@ $('#input_tips').text('请输入HTTP/eD2k/magnet链接').each(function () {
     var _info = EventHandler.set_hide_info
 
       , input = $('#dl_url_id').get(0)
-      
+
     var isMagnet = /^magnet:\?/i
     EventHandler.set_hide_info = function () {
         var url = input.value//.replace(/,/g, '_')
@@ -450,7 +450,7 @@ QQVIP.template.show = function (options) {
                   , task_row_status : 'bt_row'
                   //, task_share_class: ''
                   , task_short_file_name : '[BT]' +task.task_file_name
-                  , task_status     : 'icon_bt_unfold' 
+                  , task_status     : 'icon_bt_unfold'
                 }
                 newList.push(bt)
             }
@@ -469,7 +469,7 @@ QQVIP.template.show = function (options) {
 
 
             bt.task_done_percent_class = bt.task_done_percent === '100%' ? 'green' : ''
-            
+
         }
 
 
@@ -493,7 +493,7 @@ EventHandler.task_op_display = function (obj, taskid) {
         var show = !!$e.data('show')
         $e.data('show', !show)
         show ? $items.hide() : $items.show()
-        
+
     // normal task, show info
     // default hanlder will clear DOM class
     // so show info by self code
@@ -619,7 +619,7 @@ pop.setDownloads = function (dls) {
           , dl.filename
           , ' --header '
           , 'Cookie: FTN5K=' +dl.cookie
-          , ' ' 
+          , ' '
           , dl.url
           , '\n'
         ].join('\'')
@@ -632,7 +632,7 @@ pop.setDownloads = function (dls) {
           , ''
         ].join('\r\n')
 
-        orbit += dl.url 
+        orbit += dl.url
           +'|' +dl.filename.replace(/\|/g, '_')
           +'||FTN5K=' +dl.cookie
           +'\r\n'
@@ -807,7 +807,7 @@ $(elements.uin).change(function () {
         checkVC(uin, function (code, vcode, _vc) {
             msg.hide()
             vc = _vc
-            
+
             if (code == '0') { // no captcha
                 $vcArea.hide()
                 elements.vcode.value = vcode
