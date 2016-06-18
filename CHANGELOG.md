@@ -1,6 +1,9 @@
 # CHANGELOG
 
 
+## 0.8.0
+- **FIXED** 修复新版接口导致无法下载的问题。
+
 ## 0.7.5
 - **FIXED** 修正加入secret token后老版aria RPC无法使用的问题。
 
