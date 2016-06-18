@@ -38,9 +38,11 @@ function requestDownloadLinks(callback) {
     var count = 0
       , downloads = []
 
-    $.getJSON('/handler/lixian/get_lixian_status.php'/*, {mids : [ids]} NOUSE*/)
+    // TODO? pre-check task status by
+    // $.getJSON('/handler/lixian/get_lixian_items.php')
+    $.Deferred().resolve(g_task_op.last_task_info)
     .done(function (res) {
-        $.each(res.data, function (i, task) {
+        $.each(res, function (i, task) {
             // check
             if (
                 !$('#task_sel_' +task.mid).is(':checked')|| // user selected
